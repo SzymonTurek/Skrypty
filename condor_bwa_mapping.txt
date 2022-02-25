@@ -1,0 +1,14 @@
+####### NEW TASK #############
+Universe = vanilla
+Executable = /mnt/bluster/toolbox/genom_pipeline_hg38/bwa.kit/bwa
+arguments = "mem /home/szymont/kaczy-11/test_mapping_Medicago_truncatula/referencyjny_genom_Medicago_truncatula/Medicago_truncatula.MedtrA17_4.0.dna.toplevel.fa -t 4 /home/szymont/kaczy-11/test_mapping_prosopis_alba_genome/$(group)_1_100tys_seq.fq /home/szymont/kaczy-11/test_mapping_prosopis_alba_genome/$(group)_2_100tys_seq.fq"
+transfer_executable = False
+output  = /home/szymont/kaczy-11/test_mapping_Medicago_truncatula/bwa_output/$(group)_bwa.sam
+error   = /home/szymont/kaczy-11/test_mapping_Medicago_truncatula/bwa_output/$(group)_bwa.stats
+log = /home/szymont/kaczy-11/test_mapping_Medicago_truncatula/logs/$(group)_bwa.log
+environment = PATH=/mnt/bluster/toolbox/RNAseq_tools/python_virtualenv/bin/python:/mnt/bluster/toolbox/RNAseq_tools/bowtie2/bowtie2-2.2.9:/usr/local/bin:/usr/bin:/usr/local/sbin:$PATH
+requirements = (Machine=="protona.genomed.pl")
+
+####### END TASK #############
+
+queue group from file_of_groups.txt
