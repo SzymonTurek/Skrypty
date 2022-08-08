@@ -1,0 +1,60 @@
+```{r, error=TRUE, results='hide', message=FALSE}
+
+library(readxl)
+library("edgeR")
+library(Glimma)
+library(dplyr)
+library(writexl)
+
+```
+
+
+```{r}
+counts <- read.delim(file.choose())
+counts
+```
+
+```{r}
+results <- read.delim(file.choose())
+results
+```
+```{r}
+counts$MIRNA <- results$MIRNA
+
+```
+
+
+```{r}
+
+#counts$MajorRNA <- paste0(counts$MajorRNA, "_", counts$MIRNA)
+```
+
+
+```{r}
+#counts
+
+counts_filtered <-  counts %>% filter(MIRNA=="N15" | MIRNA=="Y")
+counts_filtered
+
+```
+
+
+```{r}
+counts_filtered <- select(counts_filtered, -MIRNA)
+
+```
+
+
+
+```{r}
+counts_filtered_non_duplicates <- counts_filtered[!duplicated(counts_filtered$MajorRNA), ]
+counts_filtered_non_duplicates
+
+print(nrow(counts_filtered))
+print(nrow(counts_filtered_non_duplicates))
+```
+
+```{r}
+write_xlsx(counts_filtered_non_duplicates, "/Users/szymonturek/Documents/analiza_mirna_maj/analiza_shortstack_sierpien/wyniki_shortstack_sierpeiń/B10_3_5vsB10_1_2/counts.xlsx")
+
+```
