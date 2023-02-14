@@ -1,0 +1,385 @@
+```{r}
+Vectorize(require)(package = c("data.table", "stringr", "stringi", "dplyr", "ggplot2", "plotly", "plyr", "tidyr", "ape", "topGO", "DESeq2", "RColorBrewer", "limma", "scico", "gplots", "reshape", "scales", "genefilter", "geneplotter", "DEseq2", "pheatmap", "heatmaply", "xlsx", "openxlsx", "gtools", "EnhancedVolcano", "edgeR", "clusterProfiler", "readxl", "enrichplot"
+), character.only = TRUE)
+```
+
+
+```{r}
+
+path_KEGG <- paste0("/Users/szymonturek/Documents/kofam_scan_B10/kegg_blast/")
+```
+
+
+
+```{r}
+create_kegg_barplot <- function(directory, kk) {
+  kegg_barplot <- barplot(kk, showCategory=25, title = "Barplot functions of genes")
+
+  jpeg(paste0(path_KEGG, directory,"/kegg_barplot.jpg"), width = 1000, height = 700, units = "px", pointsize = 20, quality = 75)
+  print(kegg_barplot)
+  while (!is.null(dev.list()))  dev.off()
+}
+```
+
+
+
+```{r}
+create_kegg_dotplot <- function(directory, kk) {
+
+  kegg_dotplot <- clusterProfiler::dotplot(kk, showCategory=25, title = "Dotplot functions of genes")
+
+  jpeg(paste0(path_KEGG, directory,  "/kegg_dotplot.jpg"), width = 1000, height = 700, units = "px", pointsize = 20, quality = 75)
+  print(kegg_dotplot)
+  while (!is.null(dev.list()))  dev.off()
+}
+```
+
+
+```{r}
+create_cnet_plot <- function(directory, kk) {
+
+  #kegg_dotplot <- clusterProfiler::dotplot(kk, showCategory=25, title = "Dotplot functions of genes")
+
+ 
+  jpeg(paste0(path_KEGG, directory,  "/cnet_plot.jpg"), width = 1000, height = 700, units = "px", pointsize = 20, quality = 75)
+  cnetplot <- clusterProfiler::cnetplot(kk, node_label="category",         
+        color_category='firebrick', 
+        color_gene='steelblue' ,
+        cex_label_category = 1.2) 
+  print(cnetplot)
+  while (!is.null(dev.list()))  dev.off()
+  
+  
+  jpeg(paste0(path_KEGG, directory,  "/cnet_plot2.jpg"), width = 1000, height = 700, units = "px", pointsize = 20, quality = 75)
+  cnetplot <- clusterProfiler::cnetplot(kk, node_label="gene",         
+        color_category='firebrick', 
+        color_gene='steelblue' ,
+        cex_label_category = 1.2) 
+  print(cnetplot)
+  while (!is.null(dev.list()))  dev.off()
+  
+  
+    jpeg(paste0(path_KEGG, directory,  "/cnet_plot3.jpg"), width = 1000, height = 700, units = "px", pointsize = 20, quality = 75)
+  cnetplot <- clusterProfiler::cnetplot(kk) 
+  print(cnetplot)
+  while (!is.null(dev.list()))  dev.off()
+}
+```
+
+
+```{r}
+create_cnet_circle_plot <- function(directory, kk) {
+
+  #kegg_dotplot <- clusterProfiler::dotplot(kk, showCategory=25, title = "Dotplot functions of genes")
+
+ 
+  jpeg(paste0(path_KEGG, directory,  "/cnet_circle_plot.jpg"), width = 1000, height = 700, units = "px", pointsize = 20, quality = 75)
+  cnetplot <- clusterProfiler::cnetplot(kk, categorySize="pvalue", circular = TRUE, colorEdge = TRUE)
+  print(cnetplot)
+  while (!is.null(dev.list()))  dev.off()
+  
+  
+} 
+```  
+
+```{r}
+create_cnet_heat_plot <- function(directory, kk) {
+
+  #kegg_dotplot <- clusterProfiler::dotplot(kk, showCategory=25, title = "Dotplot functions of genes")
+
+ 
+  jpeg(paste0(path_KEGG, directory,  "/cnet_heat_plot.jpg"), width = 1000, height = 700, units = "px", pointsize = 20, quality = 75)
+  cnetplot <- clusterProfiler:: heatplot(kk, showCategory=10)
+  print(cnetplot)
+  while (!is.null(dev.list()))  dev.off()
+  
+  
+} 
+```  
+
+```{r}
+create_cnet_aplot <- function(directory, kk) {
+
+  #kegg_dotplot <- clusterProfiler::dotplot(kk, showCategory=25, title = "Dotplot functions of genes")
+
+ 
+  jpeg(paste0(path_KEGG, directory,  "/cnet_aplot.jpg"), width = 1000, height = 700, units = "px", pointsize = 20, quality = 75)
+  
+  edox2 <- pairwise_termsim(kk)
+  p1 <- treeplot(edox2)
+  p2 <- treeplot(edox2, hclust_method = "average")
+  cnetplot <- aplot::plot_list(p1, p2, tag_levels='A')
+  #cnetplot <- clusterProfiler:: heatplot(kk, showCategory=10)
+  print(cnetplot)
+  while (!is.null(dev.list()))  dev.off()
+  
+
+} 
+```  
+
+
+```{r}
+create_upsetplot <- function(directory, kk) {
+
+  #kegg_dotplot <- clusterProfiler::dotplot(kk, showCategory=25, title = "Dotplot functions of genes")
+
+ 
+  jpeg(paste0(path_KEGG, directory,  "/upsetplot.jpg"), width = 1000, height = 700, units = "px", pointsize = 20, quality = 75)
+  cnetplot <- upsetplot(kk)
+  print(cnetplot)
+  while (!is.null(dev.list()))  dev.off()
+  
+  
+} 
+```  
+
+
+```{r}
+create_kegg_summary <-function(directory, kk) {
+  kegg_table <- as.data.table(kk)
+
+  main_address <- "https://www.kegg.jp/kegg-bin/show_pathway?"
+  kegg_table$pathway <- paste0(main_address, kegg_table$ID)
+
+
+  kegg_tab <- createWorkbook()
+  addWorksheet(kegg_tab, "KEGG_info")
+  kegg_table <- as.data.frame(kegg_table)
+
+  class(kegg_table$pathway) <- "hyperlink"
+
+  writeDataTable(kegg_tab, "KEGG_info", x = kegg_table, startRow = 1, rowNames = FALSE, tableStyle = "TableStyleMedium9")
+  saveWorkbook(kegg_tab, file=paste0(path_KEGG, directory, "/KEGG_results.xlsx"))
+}
+```
+
+
+```{r}
+#directories <- c("B10_1_2vsB10_L", "B10_1_2vsB10_apex", "B10_3_5vsB10_1_2", "B10_3_5vsB10_L", "B10_6_8vsB10_3_5", "B10_6_8vsB10_L", "B10_9vsB10_6_8", "B10_9vsB10_L", "B10_apexvsB10_L")
+directories <- c("B10_1_2vsB10_L")
+
+kegg_9930<- read.csv("/Users/szymonturek/Documents/kofam_scan_B10/kegg_blast/blast_result_2.out", sep="\t", header = FALSE)
+colnames(kegg_9930) <- c("Gene",  "related_accession",  "V3",  "V4"  ,"V5",  "V6"  ,"V7" , "V8"  ,"V9" , "V10", "V11" ,"V12")
+
+feature_table <- read.csv("/Users/szymonturek/Documents/kofam_scan_B10/kegg_blast/GCF_000004075.3_Cucumber_9930_V3_feature_table.txt", sep="\t")
+feature_table_2 <- feature_table[,c("related_accession", "GeneID")]
+blast_results_with_ncbi_id<- left_join(kegg_9930, feature_table_2, by = "related_accession")
+```
+
+```{r}
+
+main <- function(directory) {
+  dir.create(file.path(path_KEGG, directory), showWarnings = FALSE)
+  upregulated_genes <-read_excel(paste0("/Users/szymonturek/Documents/analiza_mirna_B10_final_results/data_B10_zmienione_nazwy/", directories[1], "/gene_upregulated.xlsx"))
+  upregulated_genes_2 <- left_join(upregulated_genes, blast_results_with_ncbi_id, by = "Gene")
+  upregulated_genes_2 <- na.omit(upregulated_genes_2)
+  entrez_id <- as.vector(upregulated_genes_2$GeneID)
+  
+  #entrez_id <- read_KO(directory)
+  kk <- enrichKEGG(entrez_id, organism="csv", keyType = "kegg", pvalueCutoff=0.05, pAdjustMethod="BH", minGSSize = 10, maxGSSize = 500, qvalueCutoff=0.05)
+  create_kegg_barplot(directory, kk)
+  create_kegg_dotplot(directory, kk)
+  create_kegg_summary(directory, kk)
+  create_cnet_plot(directory, kk)
+  create_cnet_circle_plot(directory, kk)
+  create_cnet_heat_plot(directory, kk)
+  create_cnet_aplot(directory, kk)
+  create_upsetplot(directory, kk)
+  
+  return(kk)
+}
+```
+
+
+```{r}
+for (directory in directories){
+  print(directory)
+  kk <- main(directory)
+  }
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+```{r}
+#  kk <- enrichKEGG(entrez_id[1:200], organism="ko", keyType = "kegg", pvalueCutoff=0.05, pAdjustMethod="BH", universe= KO_all_genome_vector, minGSSize = 10, maxGSSize = 500, qvalueCutoff=0.05)
+#kk
+
+
+#  kk <- enrichKEGG(c("101212777", "101207258", "101216258", "101203593", "101204935",	"101203087"	,"101208568"), organism="csv", keyType = "kegg", pvalueCutoff=0.05, pAdjustMethod="BH",  minGSSize = 10, maxGSSize = 500, qvalueCutoff=0.05)
+#kk
+
+cnetplot(kk)
+```
+
+
+```{r}
+p2 <- cnetplot(kk, categorySize="pvalue")
+p2
+```
+
+```{r}
+p3 <- cnetplot(kk, categorySize="pvalue", circular = TRUE, colorEdge = TRUE) 
+p3
+```
+
+```{r}
+cowplot::plot_grid(p2, p3, ncol=2, labels=LETTERS[1:2], rel_widths=c(.8, .8, 1.2))
+```
+
+
+```{r}
+p1 <- heatplot(kk, showCategory=5)
+p2 <- heatplot(kk, showCategory=5)
+cowplot::plot_grid(p1, p2, ncol=1, labels=LETTERS[1:2])
+```
+
+
+```{r}
+library("enrichplot")
+edo <- pairwise_termsim(kk)
+p1 <- emapplot(kk)
+p2 <- emapplot(kk, cex_category=1.5)
+p3 <- emapplot(kk, layout="kk")
+p4 <- emapplot(kk, cex_category=1.5,layout="kk") 
+cowplot::plot_grid(p1, p2, p3, p4, ncol=2, labels=LETTERS[1:4])
+```
+
+
+```{r}
+p1 <- cnetplot(kk, node_label="category", 
+        cex_label_category = 1.2,  foldChange=geneList_moja6) 
+p2 <- cnetplot(kk, node_label="gene", 
+        cex_label_gene = 0.8) 
+p3 <- cnetplot(kk, node_label="all") 
+p4 <- cnetplot(kk, node_label="none", 
+        color_category='firebrick', 
+        color_gene='steelblue') 
+cowplot::plot_grid(p1, p2, p3, p4, ncol=2, labels=LETTERS[1:4])
+p1
+```
+
+```{r}
+
+p1 <- cnetplot(kk, node_label="category",         
+        color_category='firebrick', 
+        color_gene='steelblue' ,
+        cex_label_category = 1.2) 
+p2 <- cnetplot(kk, node_label="gene", 
+        color_category='firebrick', 
+        color_gene='steelblue' ,
+        cex_label_gene = 0.8) Fold_change
+p1
+p2
+
+```
+
+```{r}
+
+p3 <- cnetplot(kk, circular = TRUE, node_label="category", colorEdge = TRUE) 
+p3
+p4 <- cnetplot(kk, circular = TRUE, node_label="gene", colorEdge = TRUE) 
+p4
+```
+
+```{r}
+library(org.Hs.eg.db)
+library(DOSE)
+data(geneList)
+de <- names(geneList)[abs(geneList) > 2]
+
+edo <- enrichDGN(de)
+
+edox <- setReadable(edo, 'org.Hs.eg.db', 'ENTREZID')
+p1 <- cnetplot(edox, foldChange=geneList)
+p1
+```
+```{r}
+geneList_moja <- upregulated_genes_2[,c("GeneID", "Fold_change")]
+#geneList_moja2=as.list(geneList_moja)
+#geneList_moja3 <- transpose(geneList_moja)
+
+#geneList_moja2 <- as.data.frame(geneList_moja)
+
+geneList_moja4 <- as.data.frame(geneList_moja)
+geneList_moja4$Fold_change <- as.numeric(geneList_moja4$Fold_change)
+
+##geneList_moja4 <- transpose(geneList_moja4)
+
+geneList_moja6 <- geneList_moja4$Fold_change
+names(geneList_moja6) <- geneList_moja4$GeneID
+#li <- list(col1 = geneList_moja4$GeneID,                
+#           col2 = geneList_moja4$Fold_change)
+
+#geneList_moja5 <- unlist(li)
+```
+
+```{r}
+p1 <- heatplot(kk, showCategory=5)
+p2 <- heatplot(kk, foldChange=geneList_moja6, showCategory=5)
+cowplot::plot_grid(p1, p2, ncol=1, labels=LETTERS[1:2])
+
+
+mutate(kk, qscore = -log(p.adjust, base=10)) %>% 
+    barplot(x="qscore")
+```
+
+```{r}
+barplot(kk, showCategory=20) 
+
+```
+
+```{r}
+geneList_moja7 <-  sort(geneList_moja6, decreasing = TRUE)
+kk2 <- gseDO(geneList_moja6)
+```
+
+```{r}
+edox2 <- pairwise_termsim(kk)
+p1 <- treeplot(edox2)
+p2 <- treeplot(edox2, hclust_method = "average")
+aplot::plot_list(p1, p2, tag_levels='A')
+
+```
+
+```{r}
+edo <- pairwise_termsim(kk)
+p1 <- emapplot(edo)
+p2 <- emapplot(edo, cex_category=1.5)
+p3 <- emapplot(edo, layout="kk")
+p4 <- emapplot(edo, cex_category=1.5,layout="kk") 
+cowplot::plot_grid(p1, p2, p3, p4, ncol=2, labels=LETTERS[1:4])
+```
+
+
+```{r}
+data(gcSample)
+
+xx <- compareCluster(gcSample, fun="enrichKEGG",
+                     organism="hsa", pvalueCutoff=0.05)
+xx <- pairwise_termsim(xx)                     
+p1 <- emapplot(xx)
+p2 <- emapplot(xx, legend_n=2) 
+p3 <- emapplot(xx, pie="count")
+p4 <- emapplot(xx, pie="count", cex_category=1.5, layout="kk")
+cowplot::plot_grid(p1, p2, p3, p4, ncol=2, labels=LETTERS[1:4])
+```
+
+```{r}
+library(enrichplot)
+upsetplot(kk)
+
+```
