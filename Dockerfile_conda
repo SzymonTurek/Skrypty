@@ -1,0 +1,11 @@
+# Docker inheritance
+FROM condaforge/mambaforge:23.3.1-1
+
+RUN conda config --add channels defaults \
+		&& conda config --add channels bioconda \
+		&& conda config --add channels conda-forge \
+		&& conda config --set channel_priority strict
+
+RUN conda create --name ShortStack4 shortstack 
+RUN echo "source activate ShortStack4" > ~/.bashrc
+ENV PATH /opt/conda/envs/ShortStack4/bin:$PATH
